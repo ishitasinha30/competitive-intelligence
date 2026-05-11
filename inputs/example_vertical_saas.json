@@ -1,0 +1,12 @@
+{
+  "product_name": "VetFlow",
+  "product_description": "Practice management software for independent veterinary clinics that handles appointment scheduling, medical records (SOAP notes), inventory management, invoicing, and client communication in one platform.",
+  "business_objective": "Replace legacy veterinary software and spreadsheets for independent vet practices with 1-10 vets",
+  "icp": "Independent veterinary practices in the US, 1-10 vets, not part of a corporate chain",
+  "buyer_persona": "Practice Owner / Head Veterinarian",
+  "user_persona": "Veterinarians, vet techs, and front desk staff",
+  "industry": "Vertical SaaS / HealthTech / Veterinary",
+  "known_competitors": ["Cornerstone", "AVImark", "ezyVet"],
+  "website_url": null,
+  "existing_workflow": "Receptionists schedule in Google Calendar or paper, vets write SOAP notes on paper or in Word docs, invoices created in QuickBooks, client reminders sent manually via phone"
+}

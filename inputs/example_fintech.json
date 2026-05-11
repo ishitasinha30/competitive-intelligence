@@ -1,0 +1,12 @@
+{
+  "product_name": "ExpenseIQ",
+  "product_description": "Automated expense management platform for finance teams that uses AI to categorize receipts, detect policy violations, reconcile with corporate cards, and generate real-time spend reports.",
+  "business_objective": "Eliminate manual expense reporting and reduce finance team overhead at mid-market companies",
+  "icp": "Companies with 200-2000 employees, finance teams of 5-20 people, frequent business travel",
+  "buyer_persona": "CFO or VP Finance",
+  "user_persona": "Employees submitting expenses, finance team processing and approving",
+  "industry": "FinTech / Finance Operations SaaS",
+  "known_competitors": ["Expensify", "Concur", "Brex", "Ramp"],
+  "website_url": null,
+  "existing_workflow": "Employees photograph receipts, submit via email or spreadsheet, manager approves in email, finance manually enters into accounting system (NetSuite/QuickBooks)"
+}

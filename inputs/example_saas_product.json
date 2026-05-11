@@ -1,0 +1,12 @@
+{
+  "product_name": "LinearFlow",
+  "product_description": "AI-powered project management tool for software engineering teams that auto-prioritizes backlogs, detects sprint risks, and suggests optimal task assignments based on developer velocity and capacity.",
+  "business_objective": "Replace manual sprint planning and backlog grooming for engineering teams at mid-market SaaS companies",
+  "icp": "Series B-D SaaS companies, 50-500 engineers, using agile/scrum",
+  "buyer_persona": "VP Engineering or Engineering Manager",
+  "user_persona": "Software engineers and tech leads who attend sprint planning",
+  "industry": "Developer Tools / Project Management SaaS",
+  "known_competitors": ["Linear", "Jira", "Asana", "GitHub Projects"],
+  "website_url": "https://linearflow.example.com",
+  "existing_workflow": "Teams manually groom backlog in Jira, estimate story points in planning poker, assign tasks in sprint planning meeting, then track progress in standups"
+}
