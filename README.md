@@ -1,17 +1,94 @@
 # Competitive Intelligence Agent
 
-A 12-stage, human-governed, AI-assisted competitive intelligence system. Built to analyze **any** alternative that helps customers achieve the same desired outcome — not just similar software.
+**Map your full competitive landscape — including alternatives your customers haven't considered yet.**
 
-## Core Philosophy
+A 12-stage, AI-assisted system that surfaces every type of competitor: direct rivals, horizontal platforms, AI agents, outsourced services, internal tools, and more. You stay in control at every critical decision point; the AI handles the research and synthesis.
 
 > Competition is not limited to similar products. It includes platforms, AI agents, workflows, internal tooling, operational redesign, outsourcing, and composite ecosystems.
 
+---
+
+## Prerequisites
+
+- Python 3.9+
+- One of:
+  - [Claude Code](https://claude.ai/code) installed (no API key needed)
+  - An [Anthropic API key](https://console.anthropic.com)
+
+---
+
+## Quickstart
+
+```bash
+pip install -r requirements.txt
+python main.py --input inputs/example_saas_product.json --auto
+```
+
+The backend is auto-detected: `ANTHROPIC_API_KEY` takes priority; falls back to the `claude` CLI if no key is set.
+
+---
+
+## How It Works
+
+The agent runs 12 sequential stages. Stages marked **You** pause for your input or review before continuing. Everything else runs automatically.
+
+```mermaid
+flowchart TD
+    S1["① Product Context\n📝 You define your product"]
+    S2["② JTBD & Workflow Mapping\n🤖 AI maps — ✏️ you may edit"]
+    S3["③ Competitor Discovery\n🤖 Automated across 9 categories"]
+    S4["④ Competitor Classification\n🤖 Bucketed by type & threat"]
+    S5["⑤ Competitor Validation\n📝 You review the list"]
+    S6["⑥ Threat Scoring\n🤖 8-dimension weighted scoring"]
+    S7["⑦ Competitor Profiling\n🤖 Deep profiles per competitor"]
+    S8["⑧ Workflow Ownership Analysis\n📝 You review who owns what"]
+    S9["⑨ Replacement Risk Analysis\n📝 You review risk scenarios"]
+    S10["⑩ Strategic Insights\n📝 You approve recommendations"]
+    S11["⑪ Report Generation\n🤖 Full CI report compiled"]
+    S12["⑫ Monitoring Setup\n🤖 Plan & playbook generated"]
+
+    S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7 --> S8 --> S9 --> S10 --> S11 --> S12
+
+    style S1 fill:#FDE68A,stroke:#D97706,color:#000
+    style S5 fill:#FDE68A,stroke:#D97706,color:#000
+    style S8 fill:#FDE68A,stroke:#D97706,color:#000
+    style S9 fill:#FDE68A,stroke:#D97706,color:#000
+    style S10 fill:#FDE68A,stroke:#D97706,color:#000
+    style S2 fill:#D1FAE5,stroke:#059669,color:#000
+    style S3 fill:#DBEAFE,stroke:#2563EB,color:#000
+    style S4 fill:#DBEAFE,stroke:#2563EB,color:#000
+    style S6 fill:#DBEAFE,stroke:#2563EB,color:#000
+    style S7 fill:#DBEAFE,stroke:#2563EB,color:#000
+    style S11 fill:#DBEAFE,stroke:#2563EB,color:#000
+    style S12 fill:#DBEAFE,stroke:#2563EB,color:#000
+```
+
+**Legend:** 🟡 Human input/approval required · 🟢 AI runs, you may edit · 🔵 Fully automated
+
+---
+
+## Stage Reference
+
+| # | Stage | Mode | What happens |
+|---|-------|------|--------------|
+| 1 | Product Context Definition | **You (required)** | Describe your product, customers, and core use cases |
+| 2 | JTBD & Workflow Mapping | AI + you (optional) | AI maps Jobs To Be Done and end-to-end workflows; edit freely |
+| 3 | Competitor Discovery | Automated | AI discovers competitors across all 9 categories |
+| 4 | Competitor Classification | Automated | Competitors bucketed by type and preliminary threat level |
+| 5 | Competitor Validation | **You (required)** | Accept, edit, or remove competitors before analysis continues |
+| 6 | Threat Scoring | Automated | Each competitor scored across 8 weighted dimensions |
+| 7 | Competitor Profiling | Automated | Deep profiles generated for every validated competitor |
+| 8 | Workflow Ownership Analysis | **You (required)** | Review which competitors own which parts of your workflow |
+| 9 | Replacement Risk Analysis | **You (required)** | Review scenarios where customers could replace you entirely |
+| 10 | Strategic Insight Generation | **You (required)** | Approve strategic recommendations before the report is built |
+| 11 | Report Generation | Automated | Full CI report compiled from all prior stages |
+| 12 | Continuous Monitoring Setup | Automated | Monitoring plan and weekly playbook generated |
+
+---
+
 ## Setup
 
-The agent supports two backends — pick whichever fits your environment:
-
 ### Option A: Claude Code (no API key needed)
-If you have [Claude Code](https://claude.ai/code) installed, the agent uses the `claude` CLI automatically. No key required.
 
 ```bash
 pip install -r requirements.txt
@@ -19,68 +96,70 @@ python main.py --input inputs/example_saas_product.json --auto
 ```
 
 ### Option B: Anthropic API key
-Works anywhere without Claude Code installed.
 
 ```bash
 pip install -r requirements.txt
-export ANTHROPIC_API_KEY=sk-ant-...   # get one at console.anthropic.com
+export ANTHROPIC_API_KEY=sk-ant-...
 python main.py --input inputs/example_saas_product.json --auto
 ```
 
-The backend is detected automatically: API key takes priority; falls back to `claude` CLI if no key is set.
+---
 
 ## Usage
 
-### Interactive run (prompts for product context)
 ```bash
+# Interactive — prompts you for product context at runtime
 python main.py
-```
 
-### Load from input file (skip Stage 1 prompts)
-```bash
+# Load product context from a file (skips Stage 1 prompts)
 python main.py --input inputs/example_saas_product.json
-python main.py --input inputs/example_fintech.json
-python main.py --input inputs/example_vertical_saas.json
-```
 
-### Resume from a specific stage
-```bash
+# Resume from a specific stage (e.g. after editing an output file)
 python main.py --from-stage 5
-```
 
-### Run specific stages only
-```bash
+# Run specific stages only
 python main.py --stages 3,4,6
-```
 
-### Auto-accept all optional human gates
-```bash
+# Skip all optional human review gates (human-required gates still pause)
 python main.py --input inputs/example_saas_product.json --auto
 ```
 
-## The 12 Stages
+---
 
-| Stage | Name | Mode |
-|-------|------|------|
-| 1 | Product Context Definition | Human Input Required |
-| 2 | JTBD & Workflow Mapping | Human Optional |
-| 3 | Competitor Discovery | Fully Automated |
-| 4 | Competitor Classification | Fully Automated |
-| 5 | Competitor Validation | Human Review |
-| 6 | Threat Scoring | Fully Automated |
-| 7 | Competitor Profiling | Fully Automated |
-| 8 | Workflow Ownership Analysis | Human Review |
-| 9 | Replacement Risk Analysis | Human Review |
-| 10 | Strategic Insight Generation | Human Approval |
-| 11 | Report Generation | Fully Automated |
-| 12 | Continuous Monitoring Setup | Fully Automated |
+## Competitor Discovery Categories
 
-## Execution Modes
+The agent looks beyond obvious competitors:
 
-- **Fully Automated** — AI executes without pausing
-- **Human Optional** — AI completes work, you may edit before continuing
-- **Human Review Required** — You must accept, edit, or reject AI output
-- **Human Input Required** — Workflow cannot continue without your input
+| # | Category | Example |
+|---|----------|---------|
+| 1 | Direct Competitors | Same product, same buyer |
+| 2 | Vertical Competitors | Specialized tools for your customer's industry |
+| 3 | Generic Horizontal Platforms | Broad tools that could absorb your use case |
+| 4 | Adjacent Workflow Tools | Tools that own the step before or after yours |
+| 5 | Internal Alternatives | Spreadsheets, custom scripts, homegrown systems |
+| 6 | Composite Competitor Stacks | A bundle of tools that together replaces you |
+| 7 | AI Agent Alternatives | Agents that automate what your product does |
+| 8 | Outsourced Service Alternatives | Agencies or managed services |
+| 9 | Manual Process Alternatives | "We just do it by hand" |
+
+---
+
+## Threat Scoring
+
+Each competitor is scored across 8 dimensions. Two carry extra weight:
+
+| Dimension | Weight |
+|-----------|--------|
+| Problem Overlap | **1.5×** |
+| Workflow Ownership | **1.5×** |
+| Buyer Overlap | 1× |
+| Capability Overlap | 1× |
+| AI Capability | 1× |
+| Market Presence | 1× |
+| Ecosystem Strength | 1× |
+| Switching Risk | 1× |
+
+---
 
 ## Outputs
 
@@ -102,36 +181,24 @@ outputs/
 ├── replacement_risks.md          # Replacement risk analysis
 ├── strategic_insights.md         # Strategic recommendations
 ├── final_report.md               # Full CI report
-├── monitoring_plan.json          # Monitoring configuration
+└── monitoring_plan.json          # Monitoring configuration
 └── monitoring_playbook.md        # Weekly monitoring guide
 ```
 
-## Competitor Discovery Categories
-
-1. Direct Competitors
-2. Vertical Competitors
-3. Generic Horizontal Platforms
-4. Adjacent Workflow Tools
-5. Internal Alternatives
-6. Composite Competitor Stacks
-7. AI Agent Alternatives
-8. Outsourced Service Alternatives
-9. Manual Process Alternatives
-
-## Threat Scoring Dimensions
-
-- Problem Overlap (1.5x weight)
-- Workflow Ownership (1.5x weight)
-- Buyer Overlap
-- Capability Overlap
-- AI Capability
-- Market Presence
-- Ecosystem Strength
-- Switching Risk
+---
 
 ## Example Inputs
 
-See `inputs/` for example product contexts across industries:
-- `example_saas_product.json` — Dev tools / project management
-- `example_fintech.json` — Finance operations
-- `example_vertical_saas.json` — Veterinary practice management
+See `inputs/` for ready-to-run examples across industries:
+
+| File | Description |
+|------|-------------|
+| `example_saas_product.json` | Dev tools / project management |
+| `example_fintech.json` | Finance operations |
+| `example_vertical_saas.json` | Veterinary practice management |
+
+---
+
+## License
+
+MIT
