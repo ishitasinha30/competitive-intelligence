@@ -13,6 +13,7 @@ Backend is selected automatically at startup; override with:
 """
 import json
 import os
+import re
 import subprocess
 import sys
 from typing import Optional, Union
@@ -150,15 +151,34 @@ def call_claude(
         return _call_via_sdk(prompt, context, system_override)
 
 
+_FENCE_RE = re.compile(r"^```[a-zA-Z0-9]*\n?(.*?)\n?```\s*$", re.DOTALL)
+
+
+def strip_code_fence(text: str) -> str:
+    """Strip a single leading/trailing markdown code fence, if the whole
+    response is wrapped in one. Leaves the text untouched otherwise —
+    safe even if the content itself contains ``` sequences."""
+    text = text.strip()
+    match = _FENCE_RE.match(text)
+    return match.group(1).strip() if match else text
+
+
 def call_claude_json(prompt: str, context: Optional[dict] = None) -> Union[dict, list]:
-    raw = call_claude(
-        prompt + "\n\nReturn ONLY valid JSON. No markdown fences, no explanation.",
-        context,
-    )
-    raw = raw.strip()
-    # Strip markdown fences if model wraps anyway
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-    return json.loads(raw.strip())
+    full_prompt = prompt + "\n\nReturn ONLY valid JSON. No markdown fences, no explanation."
+    raw = call_claude(full_prompt, context)
+    try:
+        return json.loads(strip_code_fence(raw))
+    except json.JSONDecodeError as e:
+        # LLM output occasionally comes back malformed — one retry with the
+        # parse error attached is usually enough to get valid JSON back.
+        retry_raw = call_claude(
+            full_prompt + f"\n\nYour previous response failed to parse as JSON ({e}). "
+            f"Return the corrected JSON only.",
+            context,
+        )
+        try:
+            return json.loads(strip_code_fence(retry_raw))
+        except json.JSONDecodeError as e2:
+            raise RuntimeError(
+                f"Model did not return valid JSON after a retry: {e2}\nRaw response:\n{retry_raw[:1000]}"
+            ) from e2

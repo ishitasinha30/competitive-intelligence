@@ -2,7 +2,7 @@
 from config.settings import STAGE_MODES, STAGE_NAMES
 from utils.human_gate import gate
 from utils.file_utils import save_markdown, load_all_context, load_json
-from utils.claude_client import call_claude
+from utils.claude_client import call_claude, strip_code_fence
 
 
 def run() -> str:
@@ -52,6 +52,7 @@ Include 20-30 capabilities.
 Return ONLY the CSV content, no explanation.""",
         context,
     )
+    cap_matrix = strip_code_fence(cap_matrix)
 
     from pathlib import Path
     from config.settings import OUTPUTS_DIR
