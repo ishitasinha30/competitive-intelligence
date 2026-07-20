@@ -93,10 +93,6 @@ def _get_sdk_client():
 
 def _call_via_sdk(prompt: str, context: Optional[dict], system_override: Optional[str]) -> str:
     client = _get_sdk_client()
-    try:
-        import anthropic
-    except ImportError:
-        pass
 
     messages = []
     if context:
@@ -115,10 +111,15 @@ def _call_via_sdk(prompt: str, context: Optional[dict], system_override: Optiona
     else:
         messages.append({"role": "user", "content": prompt})
 
-    from config.settings import MODEL
+    from config.settings import MODEL, MAX_TOKENS
     response = client.messages.create(
         model=MODEL,
-        max_tokens=8192,
+        max_tokens=MAX_TOKENS,
+        # These calls are structured extraction/synthesis, not multi-step
+        # reasoning — extended thinking was silently eating a third of the
+        # output budget (thinking tokens count against max_tokens) and
+        # truncating large JSON responses mid-string.
+        thinking={"type": "disabled"},
         system=[
             {
                 "type": "text",
@@ -128,7 +129,10 @@ def _call_via_sdk(prompt: str, context: Optional[dict], system_override: Optiona
         ],
         messages=messages,
     )
-    return response.content[0].text
+    for block in response.content:
+        if block.type == "text":
+            return block.text
+    raise RuntimeError(f"No text block in Claude response: {response.content!r}")
 
 
 # ── Public interface ──────────────────────────────────────────────────────────
