@@ -1,5 +1,5 @@
 """Stage 4: Competitor Classification — Fully Automated"""
-from config.settings import STAGE_MODES, STAGE_NAMES
+from config.settings import STAGE_NAMES
 from utils.file_utils import save_json, load_all_context
 from utils.claude_client import call_claude_json
 

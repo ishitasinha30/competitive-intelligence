@@ -1,7 +1,5 @@
 """Stage 12: Continuous Monitoring Setup — Fully Automated"""
-import json
-from datetime import date
-from config.settings import STAGE_MODES, STAGE_NAMES
+from config.settings import STAGE_NAMES
 from utils.file_utils import save_json, save_markdown, load_all_context, load_json
 from utils.claude_client import call_claude_json, call_claude
 

@@ -1,7 +1,7 @@
 """Stage 7: Competitor Profiling — Fully Automated"""
 import json
 from pathlib import Path
-from config.settings import STAGE_MODES, STAGE_NAMES, OUTPUTS_DIR
+from config.settings import STAGE_NAMES, OUTPUTS_DIR
 from utils.file_utils import load_all_context, load_json
 from utils.claude_client import call_claude_json
 

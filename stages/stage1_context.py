@@ -3,11 +3,11 @@ import json
 from pathlib import Path
 from config.settings import STAGE_MODES, STAGE_NAMES, MODE_HUMAN_REVIEW
 from utils.human_gate import gate
-from utils.file_utils import save_json, load_json, OUTPUTS_DIR
+from utils.file_utils import save_json
 from utils.claude_client import call_claude_json
 
 
-def run(skip_if_exists: bool = True) -> dict:
+def run() -> dict:
     stage_num = 1
     mode = STAGE_MODES[stage_num]
     name = STAGE_NAMES[stage_num]
