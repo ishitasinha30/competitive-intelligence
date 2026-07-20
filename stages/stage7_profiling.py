@@ -43,7 +43,7 @@ def run() -> dict:
     all_profiles = {}
 
     for comp in scored:
-        comp_name = comp["name"]
+        comp_name = comp.get("name", "Unknown")
         is_priority = comp_name in priority
         detail = "comprehensive" if is_priority else "summary"
 

@@ -23,7 +23,7 @@ def run() -> dict:
     for c in sorted_comps[:10]:
         score = c.get("overall_overlap_score", 0)
         threat = c.get("primary_threat_type", "unknown")
-        print(f"    {c['name']:<30} Score: {score:.1f}/10  Type: {threat}")
+        print(f"    {c.get('name', 'Unknown'):<30} Score: {score:.1f}/10  Type: {threat}")
 
     print(f"\n  (Full list: {len(competitors)} competitors)")
 
