@@ -8,7 +8,7 @@ INPUTS_DIR = BASE_DIR / "inputs"
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
 # Claude model to use
-MODEL = "claude-sonnet-4-6"
+MODEL = "claude-sonnet-5"
 
 # Execution modes
 MODE_FULLY_AUTOMATED = 1
