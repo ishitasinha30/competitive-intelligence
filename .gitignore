@@ -1,4 +1,5 @@
 outputs/
+inputs/product_context.json
 __pycache__/
 *.pyc
 .env

@@ -41,6 +41,11 @@ Return the filtered list as a JSON array with the same structure.
 Add a "validation_note" field to any competitor you flag as borderline.""",
             {"competitors": competitors, "product_context": context.get("product_context", {})},
         )
+        # Model sometimes wraps the array in {"competitors": [...]} despite
+        # being asked for a bare array — unwrap it so downstream stages
+        # (and this file on disk) get the plain list they expect.
+        if isinstance(filtered, dict) and isinstance(filtered.get("competitors"), list):
+            filtered = filtered["competitors"]
     else:
         filtered = validated
 
