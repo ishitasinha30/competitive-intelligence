@@ -1,8 +1,7 @@
 """Stage 11: Report Generation — Fully Automated"""
-import json
 from pathlib import Path
 from datetime import date
-from config.settings import STAGE_MODES, STAGE_NAMES, OUTPUTS_DIR
+from config.settings import STAGE_NAMES, OUTPUTS_DIR
 from utils.file_utils import save_markdown, load_all_context, load_json
 from utils.claude_client import call_claude
 
@@ -37,8 +36,9 @@ def run() -> str:
 
     threat_rows = ""
     for c in scored:
-        if c["name"] in tier1 + tier2:
-            threat_rows += f"| {c['name']} | {c.get('tier', '')} | {c.get('composite_score', 0):.1f} | {c.get('time_to_threat', '')} | {c.get('tier_rationale', '')} |\n"
+        name = c.get("name", "Unknown")
+        if name in tier1 + tier2:
+            threat_rows += f"| {name} | {c.get('tier', '')} | {c.get('composite_score', 0):.1f} | {c.get('time_to_threat', '')} | {c.get('tier_rationale', '')} |\n"
 
     report_intro = call_claude(
         f"""Write the executive summary section of a competitive intelligence report for {product_name}.

@@ -52,6 +52,8 @@ Return a JSON object with:
     )
 
     jtbd_map = gate(mode, stage_num, name, jtbd_map)
+    workflow_map = gate(mode, stage_num, name, workflow_map)
+    capabilities = gate(mode, stage_num, name, capabilities)
     save_json("jtbd_map.json", jtbd_map)
     save_json("workflow_map.json", workflow_map)
     save_json("capabilities.json", capabilities)

@@ -23,7 +23,7 @@ def run() -> dict:
     for c in sorted_comps[:10]:
         score = c.get("overall_overlap_score", 0)
         threat = c.get("primary_threat_type", "unknown")
-        print(f"    {c['name']:<30} Score: {score:.1f}/10  Type: {threat}")
+        print(f"    {c.get('name', 'Unknown'):<30} Score: {score:.1f}/10  Type: {threat}")
 
     print(f"\n  (Full list: {len(competitors)} competitors)")
 
@@ -41,6 +41,11 @@ Return the filtered list as a JSON array with the same structure.
 Add a "validation_note" field to any competitor you flag as borderline.""",
             {"competitors": competitors, "product_context": context.get("product_context", {})},
         )
+        # Model sometimes wraps the array in {"competitors": [...]} despite
+        # being asked for a bare array — unwrap it so downstream stages
+        # (and this file on disk) get the plain list they expect.
+        if isinstance(filtered, dict) and isinstance(filtered.get("competitors"), list):
+            filtered = filtered["competitors"]
     else:
         filtered = validated
 

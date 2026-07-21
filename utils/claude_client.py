@@ -13,6 +13,7 @@ Backend is selected automatically at startup; override with:
 """
 import json
 import os
+import re
 import subprocess
 import sys
 from typing import Optional, Union
@@ -92,10 +93,6 @@ def _get_sdk_client():
 
 def _call_via_sdk(prompt: str, context: Optional[dict], system_override: Optional[str]) -> str:
     client = _get_sdk_client()
-    try:
-        import anthropic
-    except ImportError:
-        pass
 
     messages = []
     if context:
@@ -114,10 +111,22 @@ def _call_via_sdk(prompt: str, context: Optional[dict], system_override: Optiona
     else:
         messages.append({"role": "user", "content": prompt})
 
-    from config.settings import MODEL
-    response = client.messages.create(
+    from config.settings import MODEL, MAX_TOKENS
+    # Stream instead of a plain create() call. Stages that batch every
+    # discovered competitor into one call (classification, scoring) scale
+    # with however many Stage 3 finds (no upper bound), and a non-streaming
+    # request errors out once the API estimates it could take >10 minutes —
+    # which large max_tokens values can trigger well before actually being
+    # needed. Streaming removes that ceiling so MAX_TOKENS can be set high
+    # enough to not truncate large real runs.
+    with client.messages.stream(
         model=MODEL,
-        max_tokens=8192,
+        max_tokens=MAX_TOKENS,
+        # These calls are structured extraction/synthesis, not multi-step
+        # reasoning — extended thinking was silently eating a third of the
+        # output budget (thinking tokens count against max_tokens) and
+        # truncating large JSON responses mid-string.
+        thinking={"type": "disabled"},
         system=[
             {
                 "type": "text",
@@ -126,8 +135,12 @@ def _call_via_sdk(prompt: str, context: Optional[dict], system_override: Optiona
             }
         ],
         messages=messages,
-    )
-    return response.content[0].text
+    ) as stream:
+        response = stream.get_final_message()
+    for block in response.content:
+        if block.type == "text":
+            return block.text
+    raise RuntimeError(f"No text block in Claude response: {response.content!r}")
 
 
 # ── Public interface ──────────────────────────────────────────────────────────
@@ -150,15 +163,34 @@ def call_claude(
         return _call_via_sdk(prompt, context, system_override)
 
 
+_FENCE_RE = re.compile(r"^```[a-zA-Z0-9]*\n?(.*?)\n?```\s*$", re.DOTALL)
+
+
+def strip_code_fence(text: str) -> str:
+    """Strip a single leading/trailing markdown code fence, if the whole
+    response is wrapped in one. Leaves the text untouched otherwise —
+    safe even if the content itself contains ``` sequences."""
+    text = text.strip()
+    match = _FENCE_RE.match(text)
+    return match.group(1).strip() if match else text
+
+
 def call_claude_json(prompt: str, context: Optional[dict] = None) -> Union[dict, list]:
-    raw = call_claude(
-        prompt + "\n\nReturn ONLY valid JSON. No markdown fences, no explanation.",
-        context,
-    )
-    raw = raw.strip()
-    # Strip markdown fences if model wraps anyway
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-    return json.loads(raw.strip())
+    full_prompt = prompt + "\n\nReturn ONLY valid JSON. No markdown fences, no explanation."
+    raw = call_claude(full_prompt, context)
+    try:
+        return json.loads(strip_code_fence(raw))
+    except json.JSONDecodeError as e:
+        # LLM output occasionally comes back malformed — one retry with the
+        # parse error attached is usually enough to get valid JSON back.
+        retry_raw = call_claude(
+            full_prompt + f"\n\nYour previous response failed to parse as JSON ({e}). "
+            f"Return the corrected JSON only.",
+            context,
+        )
+        try:
+            return json.loads(strip_code_fence(retry_raw))
+        except json.JSONDecodeError as e2:
+            raise RuntimeError(
+                f"Model did not return valid JSON after a retry: {e2}\nRaw response:\n{retry_raw[:1000]}"
+            ) from e2
