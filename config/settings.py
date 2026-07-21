@@ -10,11 +10,14 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 # Claude model to use
 MODEL = "claude-sonnet-5"
 
-# Response token budget. Some stages (e.g. discovery, profiling) ask for
-# large structured JSON and were getting truncated mid-response at 8192.
-# Stay below ~20k here — the SDK requires streaming for requests estimated
-# to take longer than 10 minutes, which max_tokens above that can trigger.
-MAX_TOKENS = 16000
+# Response token budget. Stages that batch every discovered competitor into
+# one call (classification, scoring) scale with however many competitors
+# Stage 3 discovers, and were truncating mid-response with 40+ of them even
+# after fixing the extended-thinking issue below. Stay <32k here — the SDK
+# requires streaming for requests estimated to take longer than 10 minutes,
+# which max_tokens at/above that can trigger; 20k is the highest value
+# confirmed to stay under that threshold without needing a streaming client.
+MAX_TOKENS = 20000
 
 # Execution modes
 MODE_FULLY_AUTOMATED = 1
