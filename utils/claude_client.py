@@ -112,7 +112,14 @@ def _call_via_sdk(prompt: str, context: Optional[dict], system_override: Optiona
         messages.append({"role": "user", "content": prompt})
 
     from config.settings import MODEL, MAX_TOKENS
-    response = client.messages.create(
+    # Stream instead of a plain create() call. Stages that batch every
+    # discovered competitor into one call (classification, scoring) scale
+    # with however many Stage 3 finds (no upper bound), and a non-streaming
+    # request errors out once the API estimates it could take >10 minutes —
+    # which large max_tokens values can trigger well before actually being
+    # needed. Streaming removes that ceiling so MAX_TOKENS can be set high
+    # enough to not truncate large real runs.
+    with client.messages.stream(
         model=MODEL,
         max_tokens=MAX_TOKENS,
         # These calls are structured extraction/synthesis, not multi-step
@@ -128,7 +135,8 @@ def _call_via_sdk(prompt: str, context: Optional[dict], system_override: Optiona
             }
         ],
         messages=messages,
-    )
+    ) as stream:
+        response = stream.get_final_message()
     for block in response.content:
         if block.type == "text":
             return block.text
